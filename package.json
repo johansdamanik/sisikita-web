@@ -22,6 +22,7 @@
     "@nuxtjs/sitemap": "^8.0.12",
     "@pinia/nuxt": "^0.11.3",
     "@tailwindcss/vite": "^4.2.2",
+    "@types/node": "^25.5.2",
     "tailwindcss": "^4.2.2"
   }
 }
