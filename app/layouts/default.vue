@@ -1,64 +1,71 @@
 <template>
   <div>
     <!-- Navbar -->
-    <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-neutral-200 shadow-[var(--shadow-navbar)]">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between h-16">
-          <!-- Logo -->
-          <NuxtLink to="/" class="flex items-center gap-2 group">
-            <Icon name="lucide:handshake" class="text-2xl text-primary" />
-            <span class="text-xl font-bold text-primary">SisiKita</span>
-          </NuxtLink>
-
-          <!-- Desktop Nav -->
-          <div class="hidden sm:flex items-center gap-6">
-            <NuxtLink
-              to="/explore"
-              class="text-neutral-700 hover:text-primary font-medium transition-colors"
-              active-class="!text-primary"
-            >
-              Explore
+    <nav class="navbar-main sticky top-0 z-50">
+      <div class="navbar-inner">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div class="flex items-center justify-between h-16">
+            <!-- Logo -->
+            <NuxtLink to="/" class="navbar-logo group">
+              <div class="navbar-logo-icon">
+                <Icon name="lucide:handshake" class="text-xl text-white" />
+              </div>
+              <span class="text-xl font-bold navbar-logo-text">SisiKita</span>
             </NuxtLink>
-            <NuxtLink
-              v-if="isAuthenticated"
-              to="/matches"
-              class="text-neutral-700 hover:text-primary font-medium transition-colors"
-              active-class="!text-primary"
-            >
-              Matches
-            </NuxtLink>
-          </div>
 
-          <!-- Auth Buttons -->
-          <div class="hidden sm:flex items-center gap-3">
-            <template v-if="isAuthenticated">
+            <!-- Desktop Nav -->
+            <div class="hidden sm:flex items-center gap-1">
               <NuxtLink
-                to="/posts/create"
-                class="bg-primary text-white px-4 py-2 rounded-full text-sm font-semibold hover:bg-primary-dark transition-colors btn-press"
+                to="/explore"
+                class="navbar-link"
+                active-class="navbar-link-active"
               >
-                + Buat Post
+                <Icon name="heroicons:compass-20-solid" size="16" />
+                Explore
               </NuxtLink>
               <NuxtLink
-                to="/profile"
-                class="w-9 h-9 rounded-full bg-neutral-200 flex items-center justify-center text-neutral-700 hover:bg-neutral-200/80 transition-colors"
+                v-if="isAuthenticated"
+                to="/matches"
+                class="navbar-link"
+                active-class="navbar-link-active"
               >
-                <Icon name="heroicons:user-20-solid" size="18" />
+                <Icon name="heroicons:heart-20-solid" size="16" />
+                Matches
               </NuxtLink>
-            </template>
-            <template v-else>
-              <NuxtLink
-                to="/login"
-                class="text-neutral-700 hover:text-primary font-medium transition-colors"
-              >
-                Login
-              </NuxtLink>
-              <NuxtLink
-                to="/register"
-                class="bg-primary text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-primary-dark transition-colors btn-press"
-              >
-                Daftar
-              </NuxtLink>
-            </template>
+            </div>
+
+            <!-- Auth Buttons -->
+            <div class="hidden sm:flex items-center gap-3">
+              <template v-if="isAuthenticated">
+                <NuxtLink
+                  to="/posts/create"
+                  class="navbar-cta btn-press"
+                >
+                  <Icon name="heroicons:plus-20-solid" size="16" />
+                  Buat Post
+                </NuxtLink>
+                <NuxtLink
+                  to="/profile"
+                  class="navbar-avatar"
+                >
+                  <Icon name="heroicons:user-20-solid" size="18" />
+                </NuxtLink>
+              </template>
+              <template v-else>
+                <NuxtLink
+                  to="/login"
+                  class="navbar-link"
+                >
+                  Login
+                </NuxtLink>
+                <NuxtLink
+                  to="/register"
+                  class="navbar-cta btn-press"
+                >
+                  Mulai Sekarang
+                </NuxtLink>
+              </template>
+            </div>
           </div>
         </div>
       </div>

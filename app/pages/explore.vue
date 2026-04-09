@@ -82,16 +82,22 @@
         </div>
       </div>
 
-      <!-- Feed Grid -->
       <div id="feed-section" class="scroll-mt-24">
         <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="i in 8" :key="i" class="bg-white rounded-2xl h-80 shadow-sm border border-neutral-200/50 p-4">
-          <div class="h-40 skeleton rounded-xl mb-4"></div>
-          <div class="h-5 skeleton w-2/3 mb-2"></div>
-          <div class="h-4 skeleton w-full mb-4"></div>
-          <div class="flex items-center gap-2 mt-auto">
-            <div class="w-8 h-8 skeleton rounded-full"></div>
-            <div class="h-4 skeleton w-1/3"></div>
+        <div v-for="i in 8" :key="i" class="flex flex-col">
+          <div class="h-48 skeleton rounded-2xl mb-4"></div>
+          <div class="h-6 skeleton rounded-md w-3/4 mb-2"></div>
+          <div class="h-4 skeleton rounded-md w-full mb-1"></div>
+          <div class="h-4 skeleton rounded-md w-2/3 mb-4"></div>
+          <div class="flex items-center justify-between mt-1">
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 skeleton rounded-full"></div>
+              <div class="flex flex-col gap-1">
+                <div class="w-20 h-3 skeleton rounded-md"></div>
+                <div class="w-16 h-3 skeleton rounded-md"></div>
+              </div>
+            </div>
+            <div class="w-12 h-3 skeleton rounded-md"></div>
           </div>
         </div>
       </div>
@@ -209,7 +215,7 @@ async function fetchPosts() {
   if (filters.page > 1) queryToApi.page = filters.page
 
   // Update URL internally
-  router.replace({ path: '/explore', query: { ...filters } })
+  router.replace({ path: '/explore', query: queryToApi })
 
   await postStore.fetchPosts(queryToApi)
 }

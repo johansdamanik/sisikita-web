@@ -2,11 +2,12 @@
   <NuxtLink :to="`/posts/${post.slug}`" class="block bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 overflow-hidden card-hover group relative">
     <div class="h-48 bg-neutral-100 flex items-center justify-center relative">
       <NuxtImg
-        v-if="post.imageUrl"
+        v-if="post.imageUrl && !imageError"
         :src="post.imageUrl"
         :alt="post.title"
         class="w-full h-full object-cover"
         loading="lazy"
+        @error="imageError = true"
       />
       <div v-else class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-neutral-100 to-white text-primary rounded-t-2xl">
         <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100">
@@ -63,6 +64,10 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue'
+
+const imageError = ref(false)
+
 interface Post {
   id: string
   title: string

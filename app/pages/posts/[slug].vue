@@ -20,10 +20,11 @@
           <!-- Image Section -->
           <div class="w-full md:w-5/12 relative flex shrink-0 border-b md:border-b-0 md:border-r border-neutral-100 bg-neutral-50 min-h-[350px]">
             <NuxtImg 
-              v-if="post.imageUrl"
+              v-if="post.imageUrl && !imageError"
               :src="post.imageUrl" 
               :alt="post.title"
               class="absolute inset-0 w-full h-full object-cover"
+              @error="imageError = true"
             />
             <div v-else class="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-neutral-100 to-white p-8 text-center text-primary">
               <div class="w-32 h-32 bg-white rounded-full flex items-center justify-center shadow-sm border border-neutral-100 mb-4">
@@ -144,9 +145,12 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed } from 'vue'
 import { useAuthStore } from '~/stores/auth'
 import { usePostStore } from '~/stores/post'
 import { useWhatsApp } from '~/composables/useWhatsApp'
+
+const imageError = ref(false)
 
 const route = useRoute()
 const router = useRouter()

@@ -31,7 +31,7 @@
   /* Shadows */
   --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.08);
   --shadow-card-hover: 0 4px 12px rgba(0, 0, 0, 0.12);
-  --shadow-navbar: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-navbar: 0 4px 30px rgba(0, 0, 0, 0.08);
 
   /* Radius */
   --radius-sm: 8px;
@@ -73,15 +73,8 @@ body {
 
 /* ========== Skeleton Loading ========== */
 
-@keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
 .skeleton {
-  background: linear-gradient(90deg, var(--color-neutral-200) 25%, var(--color-neutral-100) 50%, var(--color-neutral-200) 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  background-color: var(--color-neutral-200);
   border-radius: var(--radius-sm);
 }
 
@@ -136,4 +129,166 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-neutral-400);
+}
+
+/* ========== Premium Navbar ========== */
+
+.navbar-main {
+  position: relative;
+}
+
+.navbar-accent {
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--color-primary) 0%,
+    var(--color-secondary) 35%,
+    var(--color-accent) 65%,
+    var(--color-primary) 100%
+  );
+  background-size: 200% auto;
+  animation: gradient-slide 4s linear infinite;
+}
+
+@keyframes gradient-slide {
+  0% { background-position: 0% center; }
+  100% { background-position: 200% center; }
+}
+
+.navbar-inner {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: var(--shadow-navbar);
+}
+
+/* Logo */
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.navbar-logo:hover {
+  transform: scale(1.03);
+}
+
+.navbar-logo-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(42, 157, 143, 0.35);
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+}
+
+.navbar-logo:hover .navbar-logo-icon {
+  box-shadow: 0 4px 16px rgba(42, 157, 143, 0.5);
+  transform: rotate(-6deg);
+}
+
+.navbar-logo-text {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Nav Links */
+.navbar-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-neutral-700);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.navbar-link:hover {
+  color: var(--color-primary);
+  background: rgba(42, 157, 143, 0.08);
+}
+
+.navbar-link-active {
+  color: var(--color-primary) !important;
+  background: rgba(42, 157, 143, 0.1) !important;
+  font-weight: 600;
+}
+
+/* CTA Button */
+.navbar-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: var(--radius-full);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
+  box-shadow: 0 2px 12px rgba(42, 157, 143, 0.3);
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.navbar-cta::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+
+.navbar-cta:hover {
+  box-shadow: 0 4px 20px rgba(42, 157, 143, 0.45);
+  transform: translateY(-1px);
+}
+
+.navbar-cta:hover::before {
+  left: 100%;
+}
+
+/* Avatar */
+.navbar-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--color-neutral-100) 0%, var(--color-neutral-200) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-neutral-700);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  border: 2px solid transparent;
+}
+
+.navbar-avatar:hover {
+  border-color: var(--color-primary);
+  background: rgba(42, 157, 143, 0.08);
+  color: var(--color-primary);
+  transform: scale(1.08);
+  box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
 }
