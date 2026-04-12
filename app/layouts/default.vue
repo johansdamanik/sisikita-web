@@ -39,6 +39,7 @@
             <!-- Auth Buttons -->
             <div class="hidden sm:flex items-center gap-3">
               <ClientOnly>
+                
               <template v-if="isAuthenticated">
                 <NuxtLink
                   to="/posts/create"
