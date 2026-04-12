@@ -1,24 +1,38 @@
 <template>
   <div class="min-h-screen bg-neutral-50 pb-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       
       <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-neutral-900 mb-2">Explore Listing</h1>
-        <p class="text-neutral-600">Temukan barang satu sisi yang sedang dicari atau ditawarkan.</p>
+      <div class="mb-4 sm:mb-8">
+        <h1 class="text-xl sm:text-3xl font-bold text-neutral-900 mb-1 sm:mb-2">Explore Listing</h1>
+        <p class="text-sm sm:text-base text-neutral-600">Temukan barang satu sisi yang sedang dicari atau ditawarkan.</p>
       </div>
 
       <!-- Filters & Search -->
-      <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 p-4 sm:p-6 mb-8">
-        <div class="flex flex-col md:flex-row gap-4 items-end">
+      <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 p-4 sm:p-6 mb-4 sm:mb-8">
+        <!-- Mobile Filter Toggle -->
+        <div class="md:hidden flex justify-between items-center" :class="{ 'mb-4': showMobileFilter }">
+          <div class="flex items-center gap-2 text-neutral-700 font-semibold">
+            <Icon name="lucide:filter" size="18" />
+            <span class="text-sm cursor-pointer">Filter Pencarian</span>
+          </div>
+          <button @click="showMobileFilter = !showMobileFilter" class="flex items-center gap-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+            <Icon :name="showMobileFilter ? 'lucide:chevron-up' : 'lucide:chevron-down'" size="16" />
+            {{ showMobileFilter ? 'Tutup' : 'Buka' }}
+          </button>
+        </div>
+
+        <!-- Filter Desktop & Toggled Mobile -->
+        <div :class="[showMobileFilter ? 'flex' : 'hidden', 'md:flex flex-col md:flex-row gap-4 items-end']">
           
-          <div class="w-full md:w-1/3">
+          <div class="w-full md:w-1/4">
             <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Kategori</label>
             <div class="relative">
               <Icon name="lucide:layout-grid" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
               <select 
                 v-model="filters.category" 
                 class="w-full pl-10 pr-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary appearance-none cursor-pointer transition-all"
+                @change="applyFilters"
               >
                 <option value="">Semua Kategori</option>
                 <option v-for="cat in categories" :key="cat.slug" :value="cat.slug">{{ cat.name }}</option>
@@ -26,13 +40,14 @@
             </div>
           </div>
 
-          <div class="w-full md:w-1/4">
+          <div class="w-full md:w-1/5">
             <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Sisi</label>
             <div class="relative">
               <Icon name="lucide:arrow-left-right" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
               <select 
                 v-model="filters.side" 
                 class="w-full pl-10 pr-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary appearance-none cursor-pointer transition-all"
+                @change="applyFilters"
               >
                 <option value="">Semua Sisi</option>
                 <option value="LEFT">Kiri Saja</option>
@@ -41,17 +56,37 @@
             </div>
           </div>
 
-          <div class="w-full md:w-1/4">
+          <div class="w-full md:w-1/5">
             <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Ukuran</label>
             <div class="relative">
               <Icon name="lucide:ruler" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
               <input 
                 v-model="filters.size"
                 type="text"
-                placeholder="Cari ukuran (misal: 42)" 
+                placeholder="Misal: 42" 
                 class="w-full pl-10 pr-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 @keyup.enter="applyFilters"
+                @input="debouncedApply"
               />
+            </div>
+          </div>
+
+          <div class="w-full md:w-1/5">
+            <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Kota</label>
+            <div class="relative">
+              <Icon name="lucide:map-pin" class="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+              <input 
+                v-model="filters.city"
+                type="text"
+                placeholder="Cari kota..."
+                list="city-suggestions"
+                class="w-full pl-10 pr-4 py-3 rounded-xl border border-neutral-200 bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                @keyup.enter="applyFilters"
+                @input="debouncedApply"
+              />
+              <datalist id="city-suggestions">
+                <option v-for="c in cities" :key="c" :value="c" />
+              </datalist>
             </div>
           </div>
 
@@ -78,76 +113,42 @@
           <button v-if="filters.size" @click="clearFilter('size')" class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold hover:bg-primary/20 transition-colors">
             Ukuran: {{ filters.size }} <Icon name="lucide:x" size="14" />
           </button>
+          <button v-if="filters.city" @click="clearFilter('city')" class="inline-flex items-center gap-1.5 bg-primary/10 text-primary px-3 py-1 rounded-full text-xs font-semibold hover:bg-primary/20 transition-colors">
+            Kota: {{ filters.city }} <Icon name="lucide:x" size="14" />
+          </button>
           <button @click="resetFilters" class="text-xs text-neutral-400 hover:text-neutral-700 underline underline-offset-2 ml-2">Reset Semua</button>
         </div>
       </div>
 
-      <div id="feed-section" class="scroll-mt-24">
-        <div v-if="isLoading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <div v-for="i in 8" :key="i" class="flex flex-col">
-          <div class="h-48 skeleton rounded-2xl mb-4"></div>
-          <div class="h-6 skeleton rounded-md w-3/4 mb-2"></div>
-          <div class="h-4 skeleton rounded-md w-full mb-1"></div>
-          <div class="h-4 skeleton rounded-md w-2/3 mb-4"></div>
-          <div class="flex items-center justify-between mt-1">
-            <div class="flex items-center gap-2">
-              <div class="w-8 h-8 skeleton rounded-full"></div>
-              <div class="flex flex-col gap-1">
-                <div class="w-20 h-3 skeleton rounded-md"></div>
-                <div class="w-16 h-3 skeleton rounded-md"></div>
-              </div>
-            </div>
-            <div class="w-12 h-3 skeleton rounded-md"></div>
-          </div>
-        </div>
+      <!-- Results count -->
+      <div v-if="!isLoading && meta" class="mb-4 text-sm text-neutral-500 font-medium">
+        Menampilkan {{ posts.length }} dari {{ meta.total }} listing
       </div>
 
-      <div v-else-if="posts.length === 0" class="text-center py-20 bg-white rounded-2xl border border-neutral-200/50 shadow-sm">
-        <div class="w-20 h-20 bg-neutral-100 rounded-full flex items-center justify-center mx-auto mb-4 text-neutral-400">
-          <Icon name="lucide:search-x" size="32" />
+      <div id="feed-section" class="scroll-mt-24">
+        <div v-if="isLoading" class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
+          <UiSkeletonCard v-for="i in 8" :key="i" />
         </div>
-        <h3 class="text-lg font-semibold text-neutral-900 mb-2">Tidak Ada Hasil</h3>
-        <p class="text-neutral-500 max-w-sm mx-auto">Kami tidak menemukan barang yang sesuai dengan filter pencarian Anda saat ini.</p>
-        <button v-if="hasActiveFilter" @click="resetFilters" class="mt-6 bg-white border border-neutral-300 text-neutral-700 px-6 py-2.5 rounded-full font-medium hover:bg-neutral-50 transition-colors">
-          Hapus Filter Pencarian
-        </button>
+
+      <div v-else-if="posts.length === 0">
+        <UiEmptyState
+          icon="lucide:search-x"
+          title="Tidak Ada Hasil"
+          description="Kami tidak menemukan barang yang sesuai dengan filter pencarian Anda saat ini."
+          :cta-text="hasActiveFilter ? 'Hapus Filter Pencarian' : ''"
+          @action="resetFilters"
+        />
       </div>
 
       <div v-else>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           <PostCard v-for="post in posts" :key="post.id" :post="post" />
         </div>
 
-        <!-- Pagination -->
-        <div v-if="meta && meta.totalPages > 1" class="mt-12 flex justify-center items-center gap-2">
-          <button 
-            @click="changePage(meta.page - 1)" 
-            :disabled="meta.page === 1"
-            class="w-10 h-10 rounded-full flex items-center justify-center border border-neutral-200 text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Icon name="lucide:chevron-left" />
-          </button>
-          
-          <div class="flex gap-1">
-            <button 
-              v-for="p in meta.totalPages" :key="p"
-              @click="changePage(p)"
-              :class="[
-                'w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium transition-colors',
-                meta.page === p ? 'bg-primary text-white shadow-md' : 'text-neutral-600 hover:bg-neutral-100'
-              ]"
-            >
-              {{ p }}
-            </button>
-          </div>
-          
-          <button 
-            @click="changePage(meta.page + 1)" 
-            :disabled="meta.page === meta.totalPages"
-            class="w-10 h-10 rounded-full flex items-center justify-center border border-neutral-200 text-neutral-600 hover:bg-neutral-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Icon name="lucide:chevron-right" />
-          </button>
+        <!-- Infinite Scroll Anchor -->
+        <div ref="loadMoreAnchor" class="h-20 mt-8 flex justify-center items-center">
+          <Icon v-if="isLoadingMore" name="lucide:loader-2" class="animate-spin text-2xl text-primary" />
+          <span v-else-if="meta && meta.page >= meta.totalPages && posts.length > 0" class="text-neutral-400 text-sm">Tidak ada listing lagi.</span>
         </div>
       </div>
 
@@ -159,6 +160,7 @@
 <script setup lang="ts">
 import { useCategoryStore } from '~/stores/category'
 import { usePostStore } from '~/stores/post'
+import { useIntersectionObserver } from '@vueuse/core'
 
 useSeoMeta({ title: 'Explore — SisiKita' })
 
@@ -168,22 +170,69 @@ const postStore = usePostStore()
 const route = useRoute()
 const router = useRouter()
 
+// Cities for autocomplete
+const cities = ref<string[]>([])
+
+// Mobile filter state
+const showMobileFilter = ref(false)
+
 // Sync filters with URL query properly
 const filters = reactive({
   category: (route.query.category as string) || '',
   side: (route.query.side as string) || '',
   size: (route.query.size as string) || '',
+  city: (route.query.city as string) || '',
   page: Number(route.query.page) || 1,
 })
 
-const isLoading = computed(() => postStore.isLoading)
+const isInit = ref(true)
+const isLoading = computed(() => postStore.isLoading || isInit.value)
 const posts = computed(() => postStore.posts)
 const meta = computed(() => postStore.meta)
 const categories = computed(() => categoryStore.categories)
 
 const hasActiveFilter = computed(() => {
-  return !!filters.category || !!filters.side || !!filters.size
+  return !!filters.category || !!filters.side || !!filters.size || !!filters.city
 })
+
+const loadMoreAnchor = ref<HTMLElement | null>(null)
+const isLoadingMore = ref(false)
+
+useIntersectionObserver(loadMoreAnchor, async ([entry]) => {
+  if (entry?.isIntersecting && !isLoading.value && !isLoadingMore.value && meta.value && meta.value.page < meta.value.totalPages) {
+    isLoadingMore.value = true
+    filters.page += 1
+    
+    const queryToApi: any = {}
+    if (filters.category) queryToApi.category = filters.category
+    if (filters.side) queryToApi.side = filters.side
+    if (filters.size) queryToApi.size = filters.size
+    if (filters.city) queryToApi.city = filters.city
+    if (filters.page > 1) queryToApi.page = filters.page
+    
+    await postStore.fetchPosts(queryToApi, true)
+    isLoadingMore.value = false
+  }
+})
+
+// Debounce for text inputs
+let debounceTimer: ReturnType<typeof setTimeout> | null = null
+function debouncedApply() {
+  if (debounceTimer) clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => {
+    applyFilters()
+  }, 400)
+}
+
+// Buat filter snapshot untuk perbandingan cache
+function currentFilterSnapshot() {
+  return JSON.stringify({
+    category: filters.category,
+    side: filters.side,
+    size: filters.size,
+    city: filters.city,
+  })
+}
 
 // Initialize
 onMounted(async () => {
@@ -191,18 +240,49 @@ onMounted(async () => {
     categoryStore.fetchCategories()
   }
   
-  // Convert category slug from URL to categoryId if needed (URL usually has slug for SEO, but our stores might use IDs. Let's assume URL query 'category' can be either ID or slug. Our API searches by categoryId. Oh wait, backend Prisma expects categoryId string).
-  // Actually, our API /api/posts uses ?category=SLUG or ?categoryId=UUID.
-  // In posts.service.ts backend, if 'category' is passed, it matches slug. If it's a UUID, we have to match exactly. Backend `findAll` has `if (filters.category) { AND.push(category: { slug: ... }) }`.
-  // Wait, the select box v-model bound to category.id!
-  // I should ensure the backend supports filtering by category slug or ID properly.
-  // Let's pass the value exactly.
+  // Fetch cities for autocomplete
+  try {
+    const { apiFetch } = useApi()
+    cities.value = await apiFetch<string[]>('/api/posts/cities')
+  } catch { /* ignore */ }
   
-  await fetchPosts()
+  const snapshot = currentFilterSnapshot()
+  
+  // Cek apakah store sudah punya data untuk filter yang sama
+  if (postStore.exploreHasData && postStore.exploreFilterSnapshot === snapshot && posts.value.length > 0) {
+    // Data sudah ada di store dengan filter yang sama → skip fetch, restore scroll
+    isInit.value = false
+    
+    // Restore page number dari meta supaya infinite scroll lanjut dari halaman terakhir
+    if (meta.value) {
+      filters.page = meta.value.page
+    }
+    
+    // Restore scroll position setelah DOM render
+    if (postStore.exploreScrollY > 0) {
+      const targetScroll = postStore.exploreScrollY
+      nextTick(() => {
+        setTimeout(() => {
+          window.scrollTo({ top: targetScroll, behavior: 'instant' })
+        }, 50)
+      })
+    }
+  } else {
+    // Data belum ada atau filter berbeda → fetch fresh
+    postStore.exploreFilterSnapshot = snapshot
+    await fetchPosts()
+    isInit.value = false
+  }
 })
 
-function getCategoryName(idOuSlug: string) {
-  const cat = categories.value.find(c => c.id === idOuSlug || c.slug === idOuSlug)
+// Simpan scroll position SEBELUM navigasi ke halaman lain
+// onBeforeRouteLeave fires sebelum transition animation, jadi scroll position masih benar
+onBeforeRouteLeave(() => {
+  postStore.exploreScrollY = window.scrollY
+})
+
+function getCategoryName(slug: string) {
+  const cat = categories.value.find(c => c.id === slug || c.slug === slug)
   return cat ? cat.name : 'Kategori'
 }
 
@@ -212,20 +292,23 @@ async function fetchPosts() {
   if (filters.category) queryToApi.category = filters.category
   if (filters.side) queryToApi.side = filters.side
   if (filters.size) queryToApi.size = filters.size
+  if (filters.city) queryToApi.city = filters.city
   if (filters.page > 1) queryToApi.page = filters.page
 
   // Update URL internally
   router.replace({ path: '/explore', query: queryToApi })
 
   await postStore.fetchPosts(queryToApi)
+  postStore.exploreFilterSnapshot = currentFilterSnapshot()
 }
 
 function applyFilters() {
   filters.page = 1
+  postStore.exploreScrollY = 0 // Reset scroll on new filter
   fetchPosts()
 }
 
-function clearFilter(key: 'category' | 'side' | 'size') {
+function clearFilter(key: 'category' | 'side' | 'size' | 'city') {
   filters[key] = ''
   applyFilters()
 }
@@ -234,14 +317,8 @@ function resetFilters() {
   filters.category = ''
   filters.side = ''
   filters.size = ''
+  filters.city = ''
   applyFilters()
 }
-
-function changePage(p: number) {
-  filters.page = p
-  fetchPosts()
-  if (import.meta.client) {
-    document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth' })
-  }
-}
 </script>
+

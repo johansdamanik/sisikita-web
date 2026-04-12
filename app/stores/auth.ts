@@ -5,6 +5,7 @@ interface User {
   email: string
   name?: string
   isProfileComplete?: boolean
+  role?: 'USER' | 'ADMIN'
 }
 
 interface AuthState {

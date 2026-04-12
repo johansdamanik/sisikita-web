@@ -1,12 +1,14 @@
 /**
  * Composable for making API calls to the SisiKita backend.
  * Auto-attaches JWT token and handles token refresh on 401.
+ * Shows toast notification on API errors.
  */
 import { useAuthStore } from '~/stores/auth'
 
 export const useApi = () => {
   const config = useRuntimeConfig()
   const authStore = useAuthStore()
+  const { showError } = useToast()
 
   const baseURL = config.public.apiBase || 'http://localhost:3001'
 
@@ -20,11 +22,19 @@ export const useApi = () => {
       }
     },
     async onResponseError({ response }) {
-      if (response.status === 401) {
-        // Try to refresh token, or logout
+      const status = response.status
+      const data = response._data as any
+
+      if (status === 401) {
+        // Token expired or invalid — logout and redirect
         authStore.logout()
         await navigateTo('/login')
+        return
       }
+
+      // Show toast for other errors
+      const message = data?.message || `Terjadi kesalahan (${status})`
+      showError(message)
     },
   })
 

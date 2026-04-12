@@ -116,7 +116,7 @@ useSeoMeta({
 })
 
 const categoryStore = useCategoryStore()
-await categoryStore.fetchCategories()
+useAsyncData('categories', () => categoryStore.fetchCategories())
 const categories = computed(() => categoryStore.categories)
 
 const steps = [

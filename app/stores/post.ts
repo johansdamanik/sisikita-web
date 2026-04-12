@@ -30,10 +30,15 @@ export const usePostStore = defineStore('post', {
     myPosts: [] as Post[],
     meta: null as PostMeta | null,
     isLoading: false,
+
+    // Explore cache — survive navigasi antar halaman
+    exploreScrollY: 0,
+    exploreFilterSnapshot: '' as string, // JSON string dari filter terakhir
+    exploreHasData: false,
   }),
 
   actions: {
-    async fetchPosts(filters: Record<string, any> = {}) {
+    async fetchPosts(filters: Record<string, any> = {}, append = false) {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
@@ -46,11 +51,22 @@ export const usePostStore = defineStore('post', {
         const result = await apiFetch<{ data: Post[]; meta: PostMeta }>(
           `/api/posts?${params.toString()}`,
         )
-        this.posts = result.data
+        if (append) {
+          this.posts = [...this.posts, ...result.data]
+        } else {
+          this.posts = result.data
+        }
         this.meta = result.meta
+        this.exploreHasData = true
       } finally {
         this.isLoading = false
       }
+    },
+
+    invalidateExplore() {
+      this.exploreHasData = false
+      this.exploreScrollY = 0
+      this.exploreFilterSnapshot = ''
     },
 
     async fetchPostBySlug(slug: string) {
@@ -58,16 +74,18 @@ export const usePostStore = defineStore('post', {
       try {
         const { apiFetch } = useApi()
         this.currentPost = await apiFetch<Post>(`/api/posts/${slug}`)
+        return this.currentPost
       } finally {
         this.isLoading = false
       }
     },
 
-    async fetchMyPosts() {
+    async fetchMyPosts(status?: string) {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.myPosts = await apiFetch<Post[]>('/api/posts/me')
+        const url = status ? `/api/posts/me?status=${status}` : '/api/posts/me'
+        this.myPosts = await apiFetch<Post[]>(url)
       } finally {
         this.isLoading = false
       }
@@ -95,3 +113,4 @@ export const usePostStore = defineStore('post', {
     },
   },
 })
+

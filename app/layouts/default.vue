@@ -20,35 +20,41 @@
                 class="navbar-link"
                 active-class="navbar-link-active"
               >
-                <Icon name="heroicons:compass-20-solid" size="16" />
+                <Icon name="lucide:compass" size="16" />
                 Explore
               </NuxtLink>
+              <ClientOnly>
               <NuxtLink
                 v-if="isAuthenticated"
                 to="/matches"
                 class="navbar-link"
                 active-class="navbar-link-active"
               >
-                <Icon name="heroicons:heart-20-solid" size="16" />
+                <Icon name="lucide:heart" size="16" />
                 Matches
               </NuxtLink>
+              </ClientOnly>
             </div>
 
             <!-- Auth Buttons -->
             <div class="hidden sm:flex items-center gap-3">
+              <ClientOnly>
               <template v-if="isAuthenticated">
                 <NuxtLink
                   to="/posts/create"
                   class="navbar-cta btn-press"
                 >
-                  <Icon name="heroicons:plus-20-solid" size="16" />
+                  <Icon name="lucide:plus" size="16" />
                   Buat Post
                 </NuxtLink>
+                
+                <NotificationBell class="ml-2" />
+
                 <NuxtLink
                   to="/profile"
-                  class="navbar-avatar"
+                  class="navbar-avatar ml-2"
                 >
-                  <Icon name="heroicons:user-20-solid" size="18" />
+                  <Icon name="lucide:user" size="18" />
                 </NuxtLink>
               </template>
               <template v-else>
@@ -65,6 +71,7 @@
                   Mulai Sekarang
                 </NuxtLink>
               </template>
+              </ClientOnly>
             </div>
           </div>
         </div>
@@ -113,32 +120,37 @@
     </footer>
 
     <!-- Mobile Bottom Nav -->
+    <ClientOnly>
     <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 z-50">
       <div class="flex items-center justify-around h-16 px-2">
         <NuxtLink to="/" class="flex flex-col items-center gap-1 text-neutral-400 transition-colors" active-class="!text-primary">
-          <Icon name="heroicons:home-20-solid" size="22" />
+          <Icon name="lucide:home" size="22" />
           <span class="text-[10px] font-medium">Home</span>
         </NuxtLink>
         <NuxtLink to="/explore" class="flex flex-col items-center gap-1 text-neutral-400 transition-colors" active-class="!text-primary">
-          <Icon name="heroicons:magnifying-glass-20-solid" size="22" />
+          <Icon name="lucide:compass" size="22" />
           <span class="text-[10px] font-medium">Explore</span>
         </NuxtLink>
         <NuxtLink
           :to="isAuthenticated ? '/posts/create' : '/login'"
           class="flex items-center justify-center w-12 h-12 -mt-4 bg-primary text-white rounded-full shadow-lg hover:bg-primary-dark transition-colors btn-press"
         >
-          <Icon name="heroicons:plus-20-solid" size="24" />
+          <Icon name="lucide:plus" size="24" />
         </NuxtLink>
         <NuxtLink :to="isAuthenticated ? '/matches' : '/login'" class="flex flex-col items-center gap-1 text-neutral-400 transition-colors" active-class="!text-primary">
-          <Icon name="heroicons:heart-20-solid" size="22" />
+          <Icon name="lucide:heart" size="22" />
           <span class="text-[10px] font-medium">Matches</span>
         </NuxtLink>
         <NuxtLink :to="isAuthenticated ? '/profile' : '/login'" class="flex flex-col items-center gap-1 text-neutral-400 transition-colors" active-class="!text-primary">
-          <Icon name="heroicons:user-20-solid" size="22" />
+          <Icon name="lucide:user" size="22" />
           <span class="text-[10px] font-medium">Profil</span>
         </NuxtLink>
       </div>
     </nav>
+    </ClientOnly>
+
+    <!-- Toast Notifications -->
+    <UiAppToast />
   </div>
 </template>
 

@@ -23,11 +23,12 @@ export const useCategoryStore = defineStore('category', {
 
   actions: {
     async fetchCategories() {
-      if (this.categories.length > 0) return // cache
+      if (this.categories.length > 0) return this.categories // cache
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
         this.categories = await apiFetch<Category[]>('/api/categories')
+        return this.categories
       } finally {
         this.isLoading = false
       }

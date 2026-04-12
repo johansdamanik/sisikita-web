@@ -10,6 +10,13 @@
         <h1 class="text-3xl font-extrabold text-neutral-900 mb-8 tracking-tight">Edit Data Diri</h1>
 
         <form @submit.prevent="handleSubmit" class="space-y-6">
+          <div class="mb-6 flex flex-col items-center sm:items-start">
+            <label class="block text-sm font-semibold text-neutral-900 mb-2">Foto Profil</label>
+            <div class="w-full sm:w-1/2">
+              <UiImageUploader v-model="form.avatarUrl" folder="/sisikita/avatars" />
+            </div>
+          </div>
+
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label class="block text-sm font-semibold text-neutral-900 mb-2">Nama Lengkap <span class="text-error">*</span></label>
@@ -115,7 +122,8 @@ const form = reactive({
   city: '',
   address: '',
   needType: 'OTHER',
-  primarySide: 'LEFT'
+  primarySide: 'LEFT',
+  avatarUrl: ''
 })
 
 onMounted(async () => {
@@ -131,6 +139,7 @@ onMounted(async () => {
     form.address = p.address || ''
     form.needType = p.needType || 'OTHER'
     form.primarySide = p.primarySide || 'LEFT'
+    form.avatarUrl = p.avatarUrl || ''
   }
 })
 
@@ -145,6 +154,7 @@ async function handleSubmit() {
     }
     if (form.address) payload.address = form.address
     if (form.needType) payload.needType = form.needType
+    if (form.avatarUrl) payload.avatarUrl = form.avatarUrl
 
     await userStore.updateProfile(payload)
     router.push('/profile')

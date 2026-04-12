@@ -167,17 +167,20 @@ const isOwner = computed(() => {
   return post.value.user?.id === authStore.user.id
 })
 
-onMounted(async () => {
-  if (slug) {
-    try {
-      await postStore.fetchPostBySlug(slug)
-      if (post.value) {
-        useSeoMeta({ title: `${post.value.title} — SisiKita` })
-      }
-    } catch (e) {
-      // 404 or others handled natively via v-else-if
-    }
-  }
+onMounted(() => {
+  // Client side extra setups if needed
+})
+
+// SSR Data Fetching for SEO
+useAsyncData(`post-${slug}`, () => postStore.fetchPostBySlug(slug))
+
+// Set SEO meta dynamically based on reactive post value
+useSeoMeta({ 
+  title: () => post.value ? `${post.value.title} — SisiKita` : 'SisiKita',
+  description: () => post.value ? (post.value.description || `Mencari partner untuk ${post.value.category?.name} ukuran ${post.value.size}.`) : 'Platform matching barang satu sisi',
+  ogTitle: () => post.value ? `${post.value.title} — SisiKita` : 'SisiKita',
+  ogDescription: () => post.value ? (post.value.description || `Mencari partner untuk ${post.value.category?.name} ukuran ${post.value.size}.`) : 'Platform matching barang satu sisi',
+  ogImage: () => post.value?.imageUrl || '/og-default.jpg'
 })
 
 function formatDate(dateStr: string) {
