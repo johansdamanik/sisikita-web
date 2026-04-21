@@ -212,6 +212,7 @@ const filters = reactive({
 })
 
 const isInit = ref(true)
+const showMobileFilter = ref(false)
 const isLoading = computed(() => postStore.isLoading || isInit.value)
 const posts = computed(() => postStore.posts)
 const meta = computed(() => postStore.meta)
