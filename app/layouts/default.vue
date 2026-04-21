@@ -23,6 +23,7 @@
                 <Icon name="lucide:compass" size="16" />
                 Explore
               </NuxtLink>
+              <ClientOnly>
               <NuxtLink
                 v-if="isAuthenticated"
                 to="/matches"
@@ -32,10 +33,13 @@
                 <Icon name="lucide:heart" size="16" />
                 Matches
               </NuxtLink>
+              </ClientOnly>
             </div>
 
             <!-- Auth Buttons -->
             <div class="hidden sm:flex items-center gap-3">
+              <ClientOnly>
+                
               <template v-if="isAuthenticated">
                 <NuxtLink
                   to="/posts/create"
@@ -68,6 +72,7 @@
                   Mulai Sekarang
                 </NuxtLink>
               </template>
+              </ClientOnly>
             </div>
           </div>
         </div>
@@ -116,6 +121,7 @@
     </footer>
 
     <!-- Mobile Bottom Nav -->
+    <ClientOnly>
     <nav class="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-neutral-200 z-50">
       <div class="flex items-center justify-around h-16 px-2">
         <NuxtLink to="/" class="flex flex-col items-center gap-1 text-neutral-400 transition-colors" active-class="!text-primary">

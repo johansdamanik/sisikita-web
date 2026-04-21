@@ -188,11 +188,20 @@ watch(postStatusFilter, () => {
   postStore.fetchMyPosts(postStatusFilter.value)
 })
 
+const isInit = ref(true)
+const isLoading = computed(() => postStore.isLoading || isInit.value)
+const { showSuccess } = useToast()
+
+watch(postStatusFilter, () => {
+  postStore.fetchMyPosts(postStatusFilter.value)
+})
+
 onMounted(async () => {
   await Promise.all([
     userStore.fetchProfile(),
     postStore.fetchMyPosts(postStatusFilter.value)
   ])
+  isInit.value = false
 })
 
 async function handleDeleteSize(id: string) {

@@ -1,16 +1,29 @@
 <template>
   <div class="min-h-screen bg-neutral-50 pb-20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
       
       <!-- Header -->
-      <div class="mb-8">
-        <h1 class="text-3xl font-bold text-neutral-900 mb-2">Explore Listing</h1>
-        <p class="text-neutral-600">Temukan barang satu sisi yang sedang dicari atau ditawarkan.</p>
+      <div class="mb-4 sm:mb-8">
+        <h1 class="text-xl sm:text-3xl font-bold text-neutral-900 mb-1 sm:mb-2">Explore Listing</h1>
+        <p class="text-sm sm:text-base text-neutral-600">Temukan barang satu sisi yang sedang dicari atau ditawarkan.</p>
       </div>
 
       <!-- Filters & Search -->
-      <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 p-4 sm:p-6 mb-8">
-        <div class="flex flex-col md:flex-row gap-4 items-end">
+      <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 p-4 sm:p-6 mb-4 sm:mb-8">
+        <!-- Mobile Filter Toggle -->
+        <div class="md:hidden flex justify-between items-center" :class="{ 'mb-4': showMobileFilter }">
+          <div class="flex items-center gap-2 text-neutral-700 font-semibold">
+            <Icon name="lucide:filter" size="18" />
+            <span class="text-sm cursor-pointer">Filter Pencarian</span>
+          </div>
+          <button @click="showMobileFilter = !showMobileFilter" class="flex items-center gap-2 text-sm font-medium text-neutral-600 bg-neutral-100 hover:bg-neutral-200 px-3 py-1.5 rounded-lg transition-colors cursor-pointer">
+            <Icon :name="showMobileFilter ? 'lucide:chevron-up' : 'lucide:chevron-down'" size="16" />
+            {{ showMobileFilter ? 'Tutup' : 'Buka' }}
+          </button>
+        </div>
+
+        <!-- Filter Desktop & Toggled Mobile -->
+        <div :class="[showMobileFilter ? 'flex' : 'hidden', 'md:flex flex-col md:flex-row gap-4 items-end']">
           
           <div class="w-full md:w-1/4">
             <label class="block text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Kategori</label>
@@ -128,7 +141,7 @@
       </div>
 
       <div v-else>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6">
           <PostCard v-for="post in posts" :key="post.id" :post="post" />
         </div>
 
@@ -176,6 +189,7 @@
 <script setup lang="ts">
 import { useCategoryStore } from '~/stores/category'
 import { usePostStore } from '~/stores/post'
+import { useIntersectionObserver } from '@vueuse/core'
 
 useSeoMeta({ title: 'Explore — SisiKita' })
 
@@ -197,7 +211,8 @@ const filters = reactive({
   page: Number(route.query.page) || 1,
 })
 
-const isLoading = computed(() => postStore.isLoading)
+const isInit = ref(true)
+const isLoading = computed(() => postStore.isLoading || isInit.value)
 const posts = computed(() => postStore.posts)
 const meta = computed(() => postStore.meta)
 const categories = computed(() => categoryStore.categories)
@@ -249,7 +264,39 @@ onMounted(async () => {
     cities.value = await apiFetch<string[]>('/api/posts/cities')
   } catch { /* ignore */ }
   
-  await fetchPosts()
+  const snapshot = currentFilterSnapshot()
+  
+  // Cek apakah store sudah punya data untuk filter yang sama
+  if (postStore.exploreHasData && postStore.exploreFilterSnapshot === snapshot && posts.value.length > 0) {
+    // Data sudah ada di store dengan filter yang sama → skip fetch, restore scroll
+    isInit.value = false
+    
+    // Restore page number dari meta supaya infinite scroll lanjut dari halaman terakhir
+    if (meta.value) {
+      filters.page = meta.value.page
+    }
+    
+    // Restore scroll position setelah DOM render
+    if (postStore.exploreScrollY > 0) {
+      const targetScroll = postStore.exploreScrollY
+      nextTick(() => {
+        setTimeout(() => {
+          window.scrollTo({ top: targetScroll, behavior: 'instant' })
+        }, 50)
+      })
+    }
+  } else {
+    // Data belum ada atau filter berbeda → fetch fresh
+    postStore.exploreFilterSnapshot = snapshot
+    await fetchPosts()
+    isInit.value = false
+  }
+})
+
+// Simpan scroll position SEBELUM navigasi ke halaman lain
+// onBeforeRouteLeave fires sebelum transition animation, jadi scroll position masih benar
+onBeforeRouteLeave(() => {
+  postStore.exploreScrollY = window.scrollY
 })
 
 function getCategoryName(slug: string) {
@@ -270,10 +317,12 @@ async function fetchPosts() {
   router.replace({ path: '/explore', query: queryToApi })
 
   await postStore.fetchPosts(queryToApi)
+  postStore.exploreFilterSnapshot = currentFilterSnapshot()
 }
 
 function applyFilters() {
   filters.page = 1
+  postStore.exploreScrollY = 0 // Reset scroll on new filter
   fetchPosts()
 }
 
@@ -289,12 +338,5 @@ function resetFilters() {
   filters.city = ''
   applyFilters()
 }
-
-function changePage(p: number) {
-  filters.page = p
-  fetchPosts()
-  if (import.meta.client) {
-    document.getElementById('feed-section')?.scrollIntoView({ behavior: 'smooth' })
-  }
-}
 </script>
+
