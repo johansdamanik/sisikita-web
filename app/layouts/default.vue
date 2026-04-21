@@ -148,6 +148,7 @@
         </NuxtLink>
       </div>
     </nav>
+    </ClientOnly>
 
     <!-- Toast Notifications -->
     <UiAppToast />

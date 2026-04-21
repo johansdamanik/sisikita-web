@@ -252,6 +252,16 @@ function debouncedApply() {
   }, 400)
 }
 
+function currentFilterSnapshot() {
+  return JSON.stringify({
+    category: filters.category,
+    side: filters.side,
+    size: filters.size,
+    city: filters.city,
+    page: filters.page
+  })
+}
+
 // Initialize
 onMounted(async () => {
   if (categories.value.length === 0) {

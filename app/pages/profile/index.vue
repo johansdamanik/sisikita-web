@@ -182,12 +182,6 @@ const postStatusFilter = ref('active') // 'active' | 'completed'
 const profile = computed(() => userStore.profile)
 const sizeProfiles = computed(() => userStore.sizeProfiles)
 const myPosts = computed(() => postStore.myPosts)
-const { showSuccess } = useToast()
-
-watch(postStatusFilter, () => {
-  postStore.fetchMyPosts(postStatusFilter.value)
-})
-
 const isInit = ref(true)
 const isLoading = computed(() => postStore.isLoading || isInit.value)
 const { showSuccess } = useToast()
