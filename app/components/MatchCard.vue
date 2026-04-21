@@ -1,5 +1,17 @@
 <template>
-  <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 overflow-hidden hover:shadow-[var(--shadow-card-hover)] transition-shadow">
+  <div class="bg-white rounded-2xl shadow-[var(--shadow-card)] border border-neutral-200/50 overflow-hidden hover:shadow-[var(--shadow-card-hover)] transition-shadow relative">
+    
+    <!-- Score Badge -->
+    <div v-if="match.score" class="absolute top-4 right-4 z-10">
+      <div 
+        :class="['score-badge', scoreBadgeClass]"
+        :title="`Skor: ${match.score}`"
+      >
+        <Icon :name="scoreBadgeIcon" size="14" />
+        {{ scoreBadgeLabel }}
+      </div>
+    </div>
+
     <div class="p-6">
       
       <!-- Partner Info -->
@@ -78,6 +90,27 @@ const props = defineProps({
 
 const { openWhatsApp } = useWhatsApp()
 
+const scoreBadgeLabel = computed(() => {
+  const s = props.match.score || 0
+  if (s > 115) return 'Sangat Cocok'
+  if (s > 105) return 'Cocok'
+  return 'Mungkin Cocok'
+})
+
+const scoreBadgeClass = computed(() => {
+  const s = props.match.score || 0
+  if (s > 115) return 'score-excellent'
+  if (s > 105) return 'score-good'
+  return 'score-fair'
+})
+
+const scoreBadgeIcon = computed(() => {
+  const s = props.match.score || 0
+  if (s > 115) return 'lucide:zap'
+  if (s > 105) return 'lucide:star'
+  return 'lucide:circle-dot'
+})
+
 function handleHubungi() {
   const phone = props.match.partner.phone
   if (!phone) {
@@ -91,3 +124,33 @@ function handleHubungi() {
   openWhatsApp(phone, message)
 }
 </script>
+
+<style scoped>
+.score-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.025em;
+  backdrop-filter: blur(8px);
+}
+
+.score-excellent {
+  background: rgba(42, 157, 143, 0.15);
+  color: #2A9D8F;
+  box-shadow: 0 0 12px rgba(42, 157, 143, 0.2);
+}
+
+.score-good {
+  background: rgba(107, 203, 119, 0.15);
+  color: #27AE60;
+}
+
+.score-fair {
+  background: rgba(244, 162, 97, 0.15);
+  color: #F4A261;
+}
+</style>

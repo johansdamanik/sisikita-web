@@ -58,16 +58,18 @@ export const usePostStore = defineStore('post', {
       try {
         const { apiFetch } = useApi()
         this.currentPost = await apiFetch<Post>(`/api/posts/${slug}`)
+        return this.currentPost
       } finally {
         this.isLoading = false
       }
     },
 
-    async fetchMyPosts() {
+    async fetchMyPosts(status?: string) {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.myPosts = await apiFetch<Post[]>('/api/posts/me')
+        const url = status ? `/api/posts/me?status=${status}` : '/api/posts/me'
+        this.myPosts = await apiFetch<Post[]>(url)
       } finally {
         this.isLoading = false
       }

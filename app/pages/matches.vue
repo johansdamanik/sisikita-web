@@ -14,27 +14,27 @@
       </div>
 
       <!-- Empty State -->
-      <div v-else-if="matchGroups.length === 0" class="bg-white rounded-3xl p-10 border border-neutral-200/50 shadow-sm text-center py-20">
-        <div class="w-24 h-24 bg-neutral-50 rounded-full flex items-center justify-center mx-auto mb-6 text-neutral-300">
-          <Icon name="lucide:search-x" size="48" />
-        </div>
-        <h2 class="text-2xl font-bold text-neutral-900 mb-2">Belum ada Post Aktif</h2>
-        <p class="text-neutral-500 max-w-sm mx-auto mb-8">Anda perlu membuat Post terlebih dahulu agar sistem dapat mencarikan pasangan barang untuk Anda.</p>
-        <NuxtLink to="/posts/create" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-8 py-3.5 rounded-xl font-bold transition-colors shadow-lg shadow-primary/20 btn-press">
-          <Icon name="lucide:plus" /> Buat Post Sekarang
-        </NuxtLink>
+      <div v-else-if="matchGroups.length === 0">
+        <UiEmptyState
+          icon="lucide:search-x"
+          title="Belum ada Post Aktif"
+          description="Anda perlu membuat Post terlebih dahulu agar sistem dapat mencarikan pasangan barang untuk Anda."
+          cta-text="Buat Post Sekarang"
+          cta-link="/posts/create"
+          cta-icon="lucide:plus"
+        />
       </div>
 
       <!-- Match Results -->
       <div v-else class="space-y-12">
 
         <!-- Check if literally 0 matches across all posts -->
-        <div v-if="totalMatches === 0" class="bg-white rounded-3xl p-10 border border-neutral-200/50 shadow-sm text-center py-20">
-          <div class="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-6 text-primary">
-            <Icon name="lucide:radar" size="48" />
-          </div>
-          <h2 class="text-2xl font-bold text-neutral-900 mb-2">Sistem Terus Mencari...</h2>
-          <p class="text-neutral-500 max-w-md mx-auto">Postingan Anda sudah aktif, namun kami belum menemukan pengguna lain dengan kategori dan sisi yang pas. Kami akan terus memantaunya!</p>
+        <div v-if="totalMatches === 0">
+          <UiEmptyState
+            icon="lucide:radar"
+            title="Sistem Terus Mencari..."
+            description="Postingan Anda sudah aktif, namun kami belum menemukan pengguna lain dengan kategori dan sisi yang pas. Kami akan terus memantaunya!"
+          />
         </div>
 
         <div v-else v-for="group in matchGroups" :key="group.userPost.id">

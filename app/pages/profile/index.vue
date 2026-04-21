@@ -67,21 +67,56 @@
 
       <!-- Tab Content: Posts -->
       <div v-show="activeTab === 'posts'">
+        <div class="flex items-center gap-2 mb-6">
+          <button 
+            @click="postStatusFilter = 'active'"
+            :class="['px-4 py-2 rounded-full text-sm font-semibold transition-colors', postStatusFilter === 'active' ? 'bg-primary text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200']"
+          >
+            <Icon name="lucide:loader" size="14" class="mr-1" /> Aktif
+          </button>
+          <button 
+            @click="postStatusFilter = 'completed'"
+            :class="['px-4 py-2 rounded-full text-sm font-semibold transition-colors', postStatusFilter === 'completed' ? 'bg-neutral-600 text-white' : 'bg-neutral-100 text-neutral-600 hover:bg-neutral-200']"
+          >
+            <Icon name="lucide:check-circle" size="14" class="mr-1" /> Selesai
+          </button>
+        </div>
+
         <div v-if="postStore.isLoading" class="py-12 flex justify-center">
           <Icon name="lucide:loader-2" class="animate-spin text-4xl text-primary" />
         </div>
         
-        <div v-else-if="myPosts.length === 0" class="bg-white rounded-3xl p-10 border border-neutral-200/50 shadow-sm text-center py-16">
-          <Icon name="lucide:layers" class="text-6xl text-neutral-200 mx-auto mb-4" />
-          <h3 class="text-xl font-bold text-neutral-900 mb-2">Belum Ada Postingan</h3>
-          <p class="text-neutral-500 mb-6">Ceritakan apa yang Anda cari atau tawarkan.</p>
-          <NuxtLink to="/posts/create" class="inline-flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-6 py-3 rounded-xl font-bold transition-colors">
-            Mulai Buat Post
-          </NuxtLink>
+        <div v-else-if="myPosts.length === 0">
+           <UiEmptyState
+            icon="lucide:layers"
+            title="Belum Ada Postingan"
+            description="Anda belum memiliki postingan dengan status ini."
+            cta-text="Mulai Buat Post"
+            cta-link="/posts/create"
+            cta-icon="lucide:plus"
+          />
         </div>
 
         <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <PostCard v-for="post in myPosts" :key="post.id" :post="post" />
+          <div v-for="post in myPosts" :key="post.id" class="relative group">
+            <PostCard :post="post" />
+            
+            <!-- Actions Overlay for Active Posts -->
+            <div v-if="post.status === 'ACTIVE'" class="absolute -top-3 -right-3 flex gap-1 opaque-0 group-hover:opacity-100 transition-opacity">
+               <button @click="handleComplete(post.id)" title="Tandai Selesai" class="w-8 h-8 flex items-center justify-center rounded-full bg-success text-white shadow-md hover:bg-success/90 transition-colors">
+                  <Icon name="lucide:check" size="14" />
+               </button>
+               <NuxtLink :to="`/posts/${post.id}/edit`" title="Edit Post" class="w-8 h-8 flex items-center justify-center rounded-full bg-primary text-white shadow-md hover:bg-primary-dark transition-colors">
+                  <Icon name="lucide:pencil" size="14" />
+               </NuxtLink>
+               <button @click="handleDelete(post.id)" title="Hapus Post" class="w-8 h-8 flex items-center justify-center rounded-full bg-error text-white shadow-md hover:bg-error/90 transition-colors">
+                  <Icon name="lucide:trash-2" size="14" />
+               </button>
+            </div>
+            <div v-else class="absolute top-4 right-4 bg-black/60 backdrop-blur-md text-white text-xs px-2.5 py-1 rounded-full font-semibold">
+              SELESAI
+            </div>
+          </div>
         </div>
       </div>
 
@@ -142,21 +177,41 @@ const userStore = useUserStore()
 const postStore = usePostStore()
 
 const activeTab = ref('posts')
+const postStatusFilter = ref('active') // 'active' | 'completed'
 
 const profile = computed(() => userStore.profile)
 const sizeProfiles = computed(() => userStore.sizeProfiles)
 const myPosts = computed(() => postStore.myPosts)
+const { showSuccess } = useToast()
+
+watch(postStatusFilter, () => {
+  postStore.fetchMyPosts(postStatusFilter.value)
+})
 
 onMounted(async () => {
   await Promise.all([
     userStore.fetchProfile(),
-    postStore.fetchMyPosts()
+    postStore.fetchMyPosts(postStatusFilter.value)
   ])
 })
 
 async function handleDeleteSize(id: string) {
   if (window.confirm('Yakin ingin menghapus size profile ini?')) {
     await userStore.deleteSizeProfile(id)
+  }
+}
+
+async function handleComplete(id: string) {
+  if (window.confirm('Yakin ingin menandai post ini sebagai selesai? Post akan disembunyikan dari hasil pencarian.')) {
+    await postStore.completePost(id)
+    showSuccess('Post ditandai selesai')
+  }
+}
+
+async function handleDelete(id: string) {
+  if (window.confirm('Yakin ingin menghapus post ini secara permanen?')) {
+    await postStore.deletePost(id)
+    showSuccess('Post berhasil dihapus')
   }
 }
 </script>
