@@ -27,7 +27,7 @@ export const useNotificationStore = defineStore('notification', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.notifications = await apiFetch<Notification[]>('/api/notifications')
+        this.notifications = await apiFetch<Notification[]>('/api/v1/notifications')
       } catch (error) {
         console.error('Failed to fetch notifications', error)
       } finally {
@@ -38,7 +38,7 @@ export const useNotificationStore = defineStore('notification', {
     async fetchUnreadCount() {
       try {
         const { apiFetch } = useApi()
-        const { count } = await apiFetch<{ count: number }>('/api/notifications/unread-count')
+        const { count } = await apiFetch<{ count: number }>('/api/v1/notifications/unread-count')
         this.unreadCount = count
       } catch (error) {
         console.error('Failed to fetch unread count', error)
@@ -48,7 +48,7 @@ export const useNotificationStore = defineStore('notification', {
     async markAsRead(id: string) {
       try {
         const { apiFetch } = useApi()
-        await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' })
+        await apiFetch(`/api/v1/notifications/${id}/read`, { method: 'PATCH' })
         
         // Optimistic update
         const notif = this.notifications.find((n) => n.id === id)
@@ -64,7 +64,7 @@ export const useNotificationStore = defineStore('notification', {
     async markAllAsRead() {
       try {
         const { apiFetch } = useApi()
-        await apiFetch('/api/notifications/read-all', { method: 'PATCH' })
+        await apiFetch('/api/v1/notifications/read-all', { method: 'PATCH' })
         
         // Optimistic update
         this.notifications.forEach((n) => (n.isRead = true))

@@ -43,7 +43,7 @@ export const useUserStore = defineStore('user', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.profile = await apiFetch<UserProfile>('/api/users/me')
+        this.profile = await apiFetch<UserProfile>('/api/v1/users/me')
       } finally {
         this.isLoading = false
       }
@@ -51,7 +51,7 @@ export const useUserStore = defineStore('user', {
 
     async updateProfile(data: Record<string, any>) {
       const { apiFetch } = useApi()
-      this.profile = await apiFetch<UserProfile>('/api/users/me', {
+      this.profile = await apiFetch<UserProfile>('/api/v1/users/me', {
         method: 'PATCH',
         body: data,
       })
@@ -60,7 +60,7 @@ export const useUserStore = defineStore('user', {
 
     async addSizeProfile(data: { categoryId: string; size: string; sizeDetail?: string }) {
       const { apiFetch } = useApi()
-      const sizeProfile = await apiFetch<SizeProfile>('/api/size-profiles', {
+      const sizeProfile = await apiFetch<SizeProfile>('/api/v1/size-profiles', {
         method: 'POST',
         body: data,
       })
@@ -71,7 +71,7 @@ export const useUserStore = defineStore('user', {
 
     async deleteSizeProfile(id: string) {
       const { apiFetch } = useApi()
-      await apiFetch(`/api/size-profiles/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/v1/size-profiles/${id}`, { method: 'DELETE' })
       await this.fetchProfile()
     },
   },

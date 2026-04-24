@@ -113,9 +113,9 @@ const fetchUsers = async (page = 1) => {
     q.set('page', page.toString())
     if (searchQuery.value) q.set('search', searchQuery.value)
     
-    const res = await apiFetch<any>(`/api/admin/users?${q.toString()}`)
+    const res = await apiFetch<any>(`/api/v1/admin/users?${q.toString()}`)
     users.value = res.data
-    meta.value = res.meta
+    meta.value = res.pagination
   } catch (err) {
     showError('Gagal memuat users')
   } finally {
@@ -126,7 +126,7 @@ const fetchUsers = async (page = 1) => {
 const toggleBan = async (id: string) => {
   if (!confirm('Ubah status ban user ini?')) return
   try {
-    await apiFetch(`/api/admin/users/${id}/ban`, { method: 'PATCH' })
+    await apiFetch(`/api/v1/admin/users/${id}/ban`, { method: 'PATCH' })
     showSuccess('Status berhasil diubah')
     fetchUsers(meta.value?.page || 1)
   } catch (err) {
@@ -138,7 +138,7 @@ const toggleRole = async (id: string, currentRole: string) => {
   const newRole = currentRole === 'ADMIN' ? 'USER' : 'ADMIN'
   if (!confirm(`Ubah role user menjadi ${newRole}?`)) return
   try {
-    await apiFetch(`/api/admin/users/${id}/role`, { 
+    await apiFetch(`/api/v1/admin/users/${id}/role`, { 
       method: 'PATCH',
       body: { role: newRole }
     })

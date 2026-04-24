@@ -21,6 +21,12 @@ export const useApi = () => {
         options.headers.set('Authorization', `Bearer ${token}`)
       }
     },
+    onResponse({ response }) {
+      // Unwrap standard API response wrapper if data exists
+      if (response._data && response._data.data !== undefined) {
+        response._data = response._data.data
+      }
+    },
     async onResponseError({ response }) {
       const status = response.status
       const data = response._data as any

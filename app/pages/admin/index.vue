@@ -85,7 +85,7 @@ const stats = ref<any>(null)
 
 onMounted(async () => {
   try {
-    stats.value = await apiFetch('/api/admin/stats')
+    stats.value = await apiFetch('/api/v1/admin/stats')
   } catch (err) {
     console.error('Failed to load stats', err)
   } finally {

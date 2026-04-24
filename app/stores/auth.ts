@@ -32,7 +32,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        const data = await apiFetch<any>('/api/auth/register', {
+        const data = await apiFetch<any>('/api/v1/auth/register', {
           method: 'POST',
           body: { email, password, confirmPassword },
         })
@@ -50,7 +50,7 @@ export const useAuthStore = defineStore('auth', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        const data = await apiFetch<any>('/api/auth/login', {
+        const data = await apiFetch<any>('/api/v1/auth/login', {
           method: 'POST',
           body: { email, password },
         })

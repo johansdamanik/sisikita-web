@@ -133,7 +133,7 @@ async function processFile(file: File) {
     // It's using default '/sisikita' in service. Let's just upload.
 
     const { apiFetch } = useApi()
-    const response = await apiFetch<{ url: string; fileId: string }>('/api/uploads/image', {
+    const response = await apiFetch<{ url: string; fileId: string }>('/api/v1/uploads/image', {
       method: 'POST',
       body: formData,
     })
