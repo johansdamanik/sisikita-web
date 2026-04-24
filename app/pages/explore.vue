@@ -272,7 +272,7 @@ onMounted(async () => {
   // Fetch cities for autocomplete
   try {
     const { apiFetch } = useApi()
-    cities.value = await apiFetch<string[]>('/api/posts/cities')
+    cities.value = await apiFetch<string[]>('/api/v1/posts/cities')
   } catch { /* ignore */ }
   
   const snapshot = currentFilterSnapshot()

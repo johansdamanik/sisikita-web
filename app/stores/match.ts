@@ -59,7 +59,7 @@ export const useMatchStore = defineStore('match', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.matchGroups = await apiFetch<MatchGroup[]>('/api/matches')
+        this.matchGroups = await apiFetch<MatchGroup[]>('/api/v1/matches')
       } finally {
         this.isLoading = false
       }

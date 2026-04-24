@@ -106,9 +106,9 @@ const fetchPosts = async (page = 1) => {
     q.set('page', page.toString())
     if (statusFilter.value) q.set('status', statusFilter.value)
     
-    const res = await apiFetch<any>(`/api/admin/posts?${q.toString()}`)
+    const res = await apiFetch<any>(`/api/v1/admin/posts?${q.toString()}`)
     posts.value = res.data
-    meta.value = res.meta
+    meta.value = res.pagination
   } catch (err) {
     showError('Gagal memuat posts')
   } finally {
@@ -119,7 +119,7 @@ const fetchPosts = async (page = 1) => {
 const deletePost = async (id: string) => {
   if (!confirm('Peringatan: Post ini akan dihapus secara permanen. Lanjutkan?')) return
   try {
-    await apiFetch(`/api/admin/posts/${id}`, { method: 'DELETE' })
+    await apiFetch(`/api/v1/admin/posts/${id}`, { method: 'DELETE' })
     showSuccess('Post berhasil dihapus')
     fetchPosts(meta.value?.page || 1)
   } catch (err) {

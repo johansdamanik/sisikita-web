@@ -88,7 +88,7 @@ const isLoading = ref(true)
 const fetchCategories = async () => {
   isLoading.value = true
   try {
-    categories.value = await apiFetch<any[]>('/api/admin/categories')
+    categories.value = await apiFetch<any[]>('/api/v1/admin/categories')
   } catch (err) {
     showError('Gagal memuat kategori')
   } finally {
@@ -99,7 +99,7 @@ const fetchCategories = async () => {
 const toggleActive = async (id: string) => {
   if (!confirm('Ubah status kategori ini?')) return
   try {
-    await apiFetch(`/api/admin/categories/${id}/toggle`, { method: 'PATCH' })
+    await apiFetch(`/api/v1/admin/categories/${id}/toggle`, { method: 'PATCH' })
     showSuccess('Status berhasil diubah')
     fetchCategories()
   } catch (err) {

@@ -27,7 +27,7 @@ export const useCategoryStore = defineStore('category', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.categories = await apiFetch<Category[]>('/api/categories')
+        this.categories = await apiFetch<Category[]>('/api/v1/categories')
         return this.categories
       } finally {
         this.isLoading = false

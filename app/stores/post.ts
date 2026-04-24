@@ -48,15 +48,15 @@ export const usePostStore = defineStore('post', {
             params.set(key, String(val))
           }
         })
-        const result = await apiFetch<{ data: Post[]; meta: PostMeta }>(
-          `/api/posts?${params.toString()}`,
+        const result = await apiFetch<{ data: Post[]; pagination: PostMeta }>(
+          `/api/v1/posts?${params.toString()}`,
         )
         if (append) {
           this.posts = [...this.posts, ...result.data]
         } else {
           this.posts = result.data
         }
-        this.meta = result.meta
+        this.meta = result.pagination
         this.exploreHasData = true
       } finally {
         this.isLoading = false
@@ -73,7 +73,7 @@ export const usePostStore = defineStore('post', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        this.currentPost = await apiFetch<Post>(`/api/posts/${slug}`)
+        this.currentPost = await apiFetch<Post>(`/api/v1/posts/${slug}`)
         return this.currentPost
       } finally {
         this.isLoading = false
@@ -84,7 +84,7 @@ export const usePostStore = defineStore('post', {
       this.isLoading = true
       try {
         const { apiFetch } = useApi()
-        const url = status ? `/api/posts/me?status=${status}` : '/api/posts/me'
+        const url = status ? `/api/v1/posts/me?status=${status}` : '/api/v1/posts/me'
         this.myPosts = await apiFetch<Post[]>(url)
       } finally {
         this.isLoading = false
@@ -93,7 +93,7 @@ export const usePostStore = defineStore('post', {
 
     async createPost(data: Record<string, any>) {
       const { apiFetch } = useApi()
-      const post = await apiFetch<Post>('/api/posts', {
+      const post = await apiFetch<Post>('/api/v1/posts', {
         method: 'POST',
         body: data,
       })
@@ -102,13 +102,13 @@ export const usePostStore = defineStore('post', {
 
     async completePost(id: string) {
       const { apiFetch } = useApi()
-      await apiFetch(`/api/posts/${id}/complete`, { method: 'PATCH' })
+      await apiFetch(`/api/v1/posts/${id}/complete`, { method: 'PATCH' })
       await this.fetchMyPosts()
     },
 
     async deletePost(id: string) {
       const { apiFetch } = useApi()
-      await apiFetch(`/api/posts/${id}`, { method: 'DELETE' })
+      await apiFetch(`/api/v1/posts/${id}`, { method: 'DELETE' })
       await this.fetchMyPosts()
     },
   },

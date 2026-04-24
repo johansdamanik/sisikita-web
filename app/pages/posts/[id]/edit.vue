@@ -217,7 +217,7 @@ async function handleSubmit() {
   isSubmitting.value = true
   try {
     const { apiFetch } = useApi()
-    const updated = await apiFetch<any>(`/api/posts/${postId}`, {
+    const updated = await apiFetch<any>(`/api/v1/posts/${postId}`, {
       method: 'PATCH',
       body: {
         categoryId: form.categoryId,
