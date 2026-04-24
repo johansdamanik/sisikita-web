@@ -60,6 +60,7 @@ export default defineNuxtConfig({
   },
 
   image: {
+    provider: 'none',
     domains: ['images.unsplash.com', 'loremflickr.com', 'picsum.photos', 'plus.unsplash.com'],
   },
 
